@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from slpp import slpp as lua
+import pyperclip
 import os
 import re
 
@@ -24,7 +25,7 @@ def select_File():
         print(f"Selected File: {selected_File}")
     else:
         print("No file selected.")
-    menu()
+    menu(True)
     return file_path
 
 def load_lua_Table(filePath):
@@ -91,13 +92,15 @@ def wiki_text_preview(wiki_text):
 # ---------------------------
 # Main Terminal Menu
 # ---------------------------
-def menu():
-    os.system("cls" if os.name == "nt" else 'clear')
+def menu(IsClear):
+    if IsClear:
+        os.system("cls" if os.name == "nt" else 'clear')
 
     print("\n===== Tower Wiki Tool =====")
     print("1. Select tower file")
     print("2. Generate wiki page")
-    print("3. Exit")
+    print("3. Clear logs")
+    print("4. Exit")
     print("")
     print("")
     print("")
@@ -114,15 +117,23 @@ def menu():
             tower_name = os.path.splitext(os.path.basename(selected_File))[0]
             wiki_text = generate_tower_wiki(tower_name, tower_data)
 
+            pyperclip.copy(wiki_text)
+
             out_file = os.path.join("wiki", tower_name + ".txt")
             with open(out_file, "w", encoding="utf8") as f:
                 f.write(wiki_text)
-            menu()
+            menu(True)
             print("Convertion success")
         except Exception as e:
             print(f"Error processing {selected_File}: {e}")
-
     elif choice == "3":
+        if os.path.exists("wiki"):
+           for filename in os.listdir("wiki"):
+                if filename.endswith(".txt"):
+                    file_path = os.path.join("wiki", filename)
+                    os.remove(file_path)
+        menu(True)
+    elif choice == "4":
         exit()
 
-menu()
+menu(True)
